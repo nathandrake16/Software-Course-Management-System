@@ -23,7 +23,7 @@ export default function LogIn(){
             console.log(user)
             const response = await axios.post("/api/users/login",user)
             console.log(response.data)
-            router.push("/")
+            router.push("/users/")
         } catch (error) {
             console.log(error)
         }

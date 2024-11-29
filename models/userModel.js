@@ -18,6 +18,17 @@ const userSchema = mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    role:{
+        type: String,
+        required: true,
+        enum: ['student', 'faculty'],
+        default: 'student'
+    },
+    verified:{
+        type: Boolean,
+        required: false,
+        default: false
     }
 })
 

@@ -17,9 +17,16 @@ export default function SignupPage() {
         university_email: "",
         id: "",
         password: "",
+        role: ""
     })
     const signupButtonHandler = async (e) => {
         e.preventDefault()
+        if (user.university_email.includes("@g.bracu.ac.bd")) setUser({...user,role: "student"})
+        else if (user.university_email.includes("@bracu.ac.bd")) setUser({...user,role: "faculty"})
+        else {
+            alert("Please use a valid university email address.");
+            return;
+        }
         try {
             const response = await axios.post("/api/users/signup",user)
             router.push("/users/login")
