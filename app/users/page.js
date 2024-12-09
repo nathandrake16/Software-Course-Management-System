@@ -1,7 +1,10 @@
 import { AuthFunctions } from "../components/AuthFunction";
-
+import NavBar from "@/components/NavBar";
 export default function x() {
     return (
-      <AuthFunctions></AuthFunctions>
+
+      <NavBar></NavBar>
+    
+     
     );
 }
