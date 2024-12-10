@@ -42,7 +42,7 @@ export default function NavBar() {
                     {user ? (
                         <div className="flex items-center space-x-4">
                             <span className="text-white">
-                                 {user.name}
+                                 {user.name} ekhane dropdown
                             </span>
                             <button 
                                 onClick={handleLogout} 
