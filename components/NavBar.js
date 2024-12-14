@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
+import AnnouncementsDropdown from "./Announcements";
 
 export default function NavBar() {
-    const [user, setUser ] = useState(null);
+    const [user, setUser] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -13,7 +14,7 @@ export default function NavBar() {
             try {
                 const response = await axios.get("/api/users/userinfo");
                 if (response.data.logged_in) {
-                    setUser (response.data.user);
+                    setUser(response.data.user);
                 }
             } catch (error) {
                 console.error("Error fetching user info:", error);
@@ -25,7 +26,7 @@ export default function NavBar() {
     const handleLogout = async () => {
         try {
             await axios.get("/api/users/logout");
-            setUser (null);
+            setUser(null);
             router.push("/users/login");
         } catch (error) {
             console.error("Logout error:", error);
@@ -36,16 +37,16 @@ export default function NavBar() {
         <nav className="bg-black text-white p-4">
             <div className="container mx-auto flex justify-between items-center">
                 <Link href="/" className="text-lg font-bold">
-                   Software Course Management System
+                    Software Course Management System
                 </Link>
                 <div className="flex items-center space-x-4">
+                    {/* Announcements dropdown menu */}
+                    <AnnouncementsDropdown />
                     {user ? (
                         <div className="flex items-center space-x-4">
-                            <span className="text-white">
-                                 {user.name} 
-                            </span>
-                            <button 
-                                onClick={handleLogout} 
+                            <span className="text-white">{user.name}</span>
+                            <button
+                                onClick={handleLogout}
                                 className="bg-white text-black px-4 py-2 rounded hover:bg-gray-300 transition duration-300"
                             >
                                 Log Out
@@ -53,14 +54,14 @@ export default function NavBar() {
                         </div>
                     ) : (
                         <div className="flex space-x-4">
-                            <Link 
-                                href="/users/login" 
+                            <Link
+                                href="/users/login"
                                 className="bg-white text-black px-4 py-2 rounded hover:bg-gray-300 transition duration-300"
                             >
                                 Log In
                             </Link>
-                            <Link 
-                                href="/users/signup" 
+                            <Link
+                                href="/users/signup"
                                 className="bg-white text-black px-4 py-2 rounded hover:bg-gray-300 transition duration-300"
                             >
                                 Sign Up
