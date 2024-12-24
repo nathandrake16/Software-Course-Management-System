@@ -1,4 +1,5 @@
 "use client";
+import Link from 'next/link';
 import { useState, useEffect } from "react";
 import axios from "axios";
 import NavBar from "@/components/NavBar";
@@ -121,9 +122,19 @@ export default function SectionDetailsPage() {
                                 ))}
                             </tbody>
                         </table>
+                        
                     ) : (
                         <p className="text-gray-500">No students in this section</p>
                     )}
+                    <div>
+
+                            <Link 
+                                href={`/sections/${section._id}/discussion`} 
+                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                            >
+                                Section Discussion
+                            </Link>
+                    </div>
                 </div>
             </div>
         </div>
