@@ -63,7 +63,7 @@ function FacultyDashboard() {
             <DashboardCard 
                 title="Create New Section" 
                 description="Add a new section for courses"
-                href="/create-section" // Link to the CreateSection component
+                href="/sections"// Link to the CreateSection component
                 icon="➕"
             />
             <DashboardCard 

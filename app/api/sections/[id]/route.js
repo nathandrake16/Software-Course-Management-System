@@ -1,3 +1,4 @@
+// Import necessary modules
 import { NextResponse } from "next/server";
 import { connectDB } from "@/db/db";
 import Section from "@/models/sectionModel";
@@ -9,8 +10,8 @@ export async function GET(request, context) {
     try {
         await connectDB();
         
-        // Correctly extract sectionId from context
-        const sectionId = context.params.id;
+        // Await params to access sectionId
+        const { id: sectionId } = await context.params;
 
         // Find section and populate students
         const section = await Section.findById(sectionId)
@@ -41,8 +42,8 @@ export async function POST(request, context) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Correctly extract sectionId from context
-        const sectionId = context.params.id;
+        // Await params to access sectionId
+        const { id: sectionId } = await context.params;
 
         // Parse request body
         const { email } = await request.json();
@@ -86,6 +87,28 @@ export async function POST(request, context) {
         return NextResponse.json({ section }, { status: 200 });
     } catch (error) {
         console.error("Error adding student to section:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
+// DELETE section
+export async function DELETE(request, context) {
+    try {
+        await connectDB();
+        
+        // Await params to access sectionId
+        const { id: sectionId } = await context.params;
+
+        // Find and delete the section
+        const deletedSection = await Section.findByIdAndDelete(sectionId);
+        
+        if (!deletedSection) {
+            return NextResponse.json({ error: "Section not found" }, { status: 404 });
+        }
+
+        return NextResponse.json({ message: "Section deleted successfully" }, { status: 200 });
+    } catch (error) {
+        console.error("Error deleting section:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
