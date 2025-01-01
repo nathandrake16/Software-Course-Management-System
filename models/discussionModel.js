@@ -20,7 +20,7 @@ const discussionPostSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    comments: [{
+    comments: [{ 
         author: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'users'
@@ -32,6 +32,11 @@ const discussionPostSchema = mongoose.Schema({
         }
     }]
 }, { timestamps: true });
+
+// Add a method to check if the user is the author
+discussionPostSchema.methods.isAuthor = function(userId) {
+    return this.author.toString() === userId.toString();
+};
 
 const DiscussionPost = mongoose.models.discussionposts || mongoose.model("discussionposts", discussionPostSchema);
 
