@@ -18,6 +18,9 @@ export async function POST(request) {
         if (!passMatches) {
             return NextResponse.json({error:"Invalid Password"},{status:400})
         }
+        // if (!user.verified) {
+        //     return NextResponse.json({message:"Please verify your email first"},{status:400})
+        // }
         const tokenData = {
             id: user._id
         }
