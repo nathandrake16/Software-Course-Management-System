@@ -17,6 +17,9 @@ export async function POST(request) {
         if (user) {
             return NextResponse.json({error:"The ID is already registred"},{status:400})
         }
+        if (university_email.split("@")[1] != "g.bracu.ac.bd" && university_email.split("@")[1] != "bracu.ac.bd") {
+            return NextResponse.json({error:"Only BRACU student/faculty can register"},{status:400})
+        }
         const salt = await bcryptjs.genSalt(10)
         const hashedPassword = await bcryptjs.hash(password,salt)
         const newUser = new User({name, university_email,id, password: hashedPassword, role: arole})

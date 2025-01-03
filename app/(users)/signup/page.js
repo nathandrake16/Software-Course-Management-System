@@ -1,47 +1,53 @@
 "use client"
 import axios from "axios"
-import  { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import NavBar from "@/components/NavBar"
 
-export default function SignupPage() {   
+export default function SignupPage() {
     const router = useRouter()
-    // useEffect(() => {
-    //     const fetchData = async()=> {
-    //         const response = await axios.get("/api/residents/userinfo")
-    //         if (response.data.logged_in === true) router.push("/")
-    //     }
-    //     fetchData();
-    //   }, []);
-    const [user,setUser] = useState({
+    const [user, setUser] = useState({
         name: "",
         university_email: "",
         id: "",
         password: "",
         role: ""
     })
+    const [error, setError] = useState("")
+
     const signupButtonHandler = async (e) => {
         e.preventDefault()
-        if (user.university_email.includes("@g.bracu.ac.bd")) setUser({...user,role: "student"})
-        else if (user.university_email.includes("@bracu.ac.bd")) setUser({...user,role: "faculty"})
-        else {
-            alert("Please use a valid university email address.");
-            return;
+        setError("")
+
+        if (!user.name || !user.university_email || !user.id || !user.password) {
+            setError("All fields are required")
+            return
         }
+
+        if (user.university_email.includes("@g.bracu.ac.bd")) {
+            setUser({...user, role: "student"})
+        } else if (user.university_email.includes("@bracu.ac.bd")) {
+            setUser({...user, role: "faculty"})
+        } else {
+            setError("Please use a valid university email address")
+            return
+        }
+
         try {
-            const response = await axios.post("/api/users/signup",user)
-            router.push("/users/login")
+            const response = await axios.post("/api/users/signup", user)
+            router.push("/login")
         } catch (error) {
-            console.log(error)
+            setError(error.response?.data?.error || "Signup failed. Please try again.")
         }
     }
 
     return (
         <>
-        <NavBar></NavBar>
+            <NavBar></NavBar>
             <div style={styles.container}>
                 <form style={styles.form}>
                     <h2 style={styles.heading}>Sign Up</h2>
+                    {error && <div style={styles.error}>{error}</div>}
                     <input 
                         style={styles.input} 
                         type="text" 
@@ -74,10 +80,19 @@ export default function SignupPage() {
                 </form>
             </div>
         </>
-    );
+    )
 }
 
 const styles = {
+    error: {
+        color: '#ff3333',
+        backgroundColor: '#ffe6e6',
+        padding: '10px',
+        borderRadius: '5px',
+        marginBottom: '10px',
+        fontSize: '14px',
+        textAlign: 'center'
+    },
     container: {
         display: "flex",
         justifyContent: "center",
