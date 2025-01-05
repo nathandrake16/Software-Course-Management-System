@@ -41,16 +41,22 @@ export default function NavBar() {
                 </Link>
                 <div className="flex items-center space-x-4">
                     {/* Announcements dropdown menu */}
-                    <AnnouncementsDropdown />
                     {user ? (
                         <div className="flex items-center space-x-4">
-                            <span className="text-white">{user.name}</span>
+                            <Link href="/dashboard" className="text-white hover:text-gray-300">
+                                Dashboard
+                            </Link>
+                            <AnnouncementsDropdown />
+                            <Link href="/profile" className="text-white hover:text-gray-300">
+                                {user.name}
+                            </Link>
                             <button
                                 onClick={handleLogout}
                                 className="bg-white text-black px-4 py-2 rounded hover:bg-gray-300 transition duration-300"
                             >
                                 Log Out
                             </button>
+
                         </div>
                     ) : (
                         <div className="flex space-x-4">

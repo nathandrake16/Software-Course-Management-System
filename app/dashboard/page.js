@@ -54,17 +54,19 @@ export default function Dashboard() {
 function FacultyDashboard() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {user.role === "faculty" && (
+            <DashboardCard 
+                title="Announcements" 
+                description="Create and manage course announcements"
+                href="/announcements"
+                icon="📢"
+            />
+            )}
             <DashboardCard 
                 title="Manage Sections" 
                 description="Create and manage course sections"
                 href="/sections"
                 icon="📚"
-            />
-            <DashboardCard 
-                title="Create New Section" 
-                description="Add a new section for courses"
-                href="/sections"// Link to the CreateSection component
-                icon="➕"
             />
             <DashboardCard 
                 title="Course Management" 
