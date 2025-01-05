@@ -9,6 +9,7 @@ export default function Announcement() {
     const [content, setContent] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [sendEmail, setSendEmail] = useState(false);
 
     useEffect(() => {
         const fetchSections = async () => {
@@ -40,21 +41,36 @@ export default function Announcement() {
         }
 
         try {
-            const response = await axios.post("/api/announcements", {
-                content,
-                sections: selectedSections,
-            });
-
-            if (response.status === 200) {
-                setSuccess("Announcement created successfully!");
-                setContent("");
-                setSelectedSections([]);
+            if (sendEmail) {
+                const announcementResponse = await axios.post("/api/announcements/notify", {
+                    content,
+                    sections: selectedSections,
+                });
+                if (announcementResponse.status === 200) {
+                    setSuccess("Announcement created successfully!" + (sendEmail ? " Email notifications sent." : ""));
+                    setContent("");
+                    setSelectedSections([]);
+                    setSendEmail(false);
+                }
+            }
+            else {
+                const announcementResponse = await axios.post("/api/announcements", {
+                    content,
+                    sections: selectedSections,
+                });
+                if (announcementResponse.status === 200) {
+                    setSuccess("Announcement created successfully!" + (sendEmail ? " Email notifications sent." : ""));
+                    setContent("");
+                    setSelectedSections([]);
+                    setSendEmail(false);
+                }
             }
         } catch (error) {
             console.error("Error creating announcement:", error);
             setError("An error occurred while creating the announcement.");
         }
     };
+
 
     const handleSectionChange = (sectionId) => {
         setSelectedSections((prev) =>
@@ -131,7 +147,18 @@ export default function Announcement() {
                             ))}
                         </div>
                     </div>
-
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                        <input
+                            type="checkbox"
+                            id="sendEmail"
+                            checked={sendEmail}
+                            onChange={(e) => setSendEmail(e.target.checked)}
+                            className="form-checkbox h-5 w-5 text-blue-600"
+                        />
+                        <label htmlFor="sendEmail" className="text-gray-700">
+                            Send announcement via email
+                        </label>
+                    </div>
                     <div className="flex justify-center">
                         <button
                             type="submit"

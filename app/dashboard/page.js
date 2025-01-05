@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import NavBar from "@/components/NavBar"; // Ensure this path is correct
+import NavBar from "@/components/NavBar";
 import Link from "next/link";
 
 export default function Dashboard() {
@@ -51,14 +51,14 @@ export default function Dashboard() {
     );
 }
 
-function FacultyDashboard() {
+function FacultyDashboard({user}) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {user.role === "faculty" && (
             <DashboardCard 
                 title="Announcements" 
                 description="Create and manage course announcements"
-                href="/announcements"
+                href="/dashboard/announcement"
                 icon="📢"
             />
             )}
