@@ -1,6 +1,6 @@
 "use client"
 import axios from "axios"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import NavBar from "@/components/NavBar"
 
@@ -24,14 +24,15 @@ export default function SignupPage() {
             return
         }
 
-        if (user.university_email.includes("@g.bracu.ac.bd")) {
+        if (user.university_email.split("@")[1] === "g.bracu.ac.bd" ) {
             setUser({...user, role: "student"})
-        } else if (user.university_email.includes("@bracu.ac.bd")) {
+        } else if (user.university_email.split("@")[1] === "bracu.ac.bd") {
             setUser({...user, role: "faculty"})
         } else {
             setError("Please use a valid university email address")
             return
         }
+        console.log(user)
 
         try {
             const response = await axios.post("/api/users/signup", user)
@@ -42,100 +43,77 @@ export default function SignupPage() {
     }
 
     return (
-        <>
-            <NavBar></NavBar>
-            <div style={styles.container}>
-                <form style={styles.form}>
-                    <h2 style={styles.heading}>Sign Up</h2>
-                    {error && <div style={styles.error}>{error}</div>}
-                    <input 
-                        style={styles.input} 
-                        type="text" 
-                        placeholder="Name" 
-                        value={user.name} 
-                        onChange={(e) => setUser({...user, name: e.target.value})}
-                    />
-                    <input 
-                        style={styles.input} 
-                        type="email" 
-                        placeholder="University Email" 
-                        value={user.university_email} 
-                        onChange={(e) => setUser({...user, university_email: e.target.value})}
-                    />
-                    <input 
-                        style={styles.input} 
-                        type="text" 
-                        placeholder="ID" 
-                        value={user.id} 
-                        onChange={(e) => setUser({...user, id: e.target.value})}
-                    />
-                    <input 
-                        style={styles.input} 
-                        type="password" 
-                        placeholder="Password" 
-                        value={user.password} 
-                        onChange={(e) => setUser({...user, password: e.target.value})}
-                    />
-                    <button style={styles.button} onClick={signupButtonHandler}>Submit</button>
-                </form>
+        <div className="min-h-screen bg-gradient-to-r from-blue-600 to-indigo-700">
+            <NavBar />
+            <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-4">
+                <div className="w-full max-w-md">
+                    <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+                        <h2 className="text-3xl font-bold text-center text-gray-800">Create Account</h2>
+                        
+                        {error && (
+                            <div className="bg-red-50 text-red-500 px-4 py-3 rounded-lg text-sm">
+                                {error}
+                            </div>
+                        )}
+
+                        <form className="space-y-4">
+                            <div>
+                                <input
+                                    type="text"
+                                    placeholder="Full Name"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                    value={user.name}
+                                    onChange={(e) => setUser({...user, name: e.target.value})}
+                                />
+                            </div>
+
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="University Email"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                    value={user.university_email}
+                                    onChange={(e) => setUser({...user, university_email: e.target.value})}
+                                />
+                            </div>
+
+                            <div>
+                                <input
+                                    type="text"
+                                    placeholder="Student/Faculty ID"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                    value={user.id}
+                                    onChange={(e) => setUser({...user, id: e.target.value})}
+                                />
+                            </div>
+
+                            <div>
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                    value={user.password}
+                                    onChange={(e) => setUser({...user, password: e.target.value})}
+                                />
+                            </div>
+
+                            <button
+                                onClick={signupButtonHandler}
+                                className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition duration-300"
+                            >
+                                Sign Up
+                            </button>
+                        </form>
+
+                        <p className="text-center text-gray-600 text-sm">
+                            Already have an account?{" "}
+                            <a href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                                Sign In
+                            </a>
+                        </p>
+                    </div>
+                </div>
             </div>
-        </>
+        </div>
     )
 }
-
-const styles = {
-    error: {
-        color: '#ff3333',
-        backgroundColor: '#ffe6e6',
-        padding: '10px',
-        borderRadius: '5px',
-        marginBottom: '10px',
-        fontSize: '14px',
-        textAlign: 'center'
-    },
-    container: {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        background: "linear-gradient(to right, #6a11cb, #2575fc)",
-        color: "#fff",
-    },
-    form: {
-        background: "#fff",
-        padding: "20px 40px",
-        borderRadius: "10px",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        textAlign: "center",
-        width: "300px",
-    },
-    heading: {
-        marginBottom: "20px",
-        fontSize: "24px",
-        color: "#333",
-    },
-    input: {
-        width: "100%",
-        padding: "10px",
-        margin: "10px 0",
-        borderRadius: "5px",
-        border: "1px solid #ccc",
-        fontSize: "16px",
-        color: "black"
-    },
-
-    button: {
-        background: "linear-gradient(to right, #6a11cb, #2575fc)",
-        color: "#fff",
-        border: "none",
-        padding: "10px 20px",
-        borderRadius: "5px",
-        fontSize: "16px",
-        cursor: "pointer",
-        marginTop: "10px",
-        transition: "transform 0.2s",
-    },
-    buttonHover: {
-        transform: "scale(1.05)",
-    },
-};
