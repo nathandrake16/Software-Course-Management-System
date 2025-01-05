@@ -41,7 +41,7 @@ export default function Dashboard() {
             <NavBar />
             <div className="container mx-auto p-6">
                 <h1 className="text-3xl font-bold mb-6">
-                    Welcome, {user.name}, {user.role}
+                    Welcome {user.role}, {user.name}! 
                 </h1>
 
                 {user.role === "faculty" && <FacultyDashboard user={user} />}
