@@ -96,6 +96,12 @@ function FacultyDashboard() {
                 href="/profile"
                 icon="👤"
             />
+            <DashboardCard 
+                title="Resource Management" 
+                description="View and manage course materials"
+                href="/resources"
+                icon="📝"
+            />
         </div>
     );
 }
@@ -144,6 +150,12 @@ function StudentDashboard({ user }) {
                 description="Manage your profile settings"
                 href="/profile"
                 icon="👤"
+            />
+            <DashboardCard 
+                title="Resource Management" 
+                description="View and manage course materials"
+                href="/resources"
+                icon="📝"
             />
         </div>    );
 }
