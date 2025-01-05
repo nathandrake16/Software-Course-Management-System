@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/db/db";
 import Section from "@/models/sectionModel";
 import nodemailer from 'nodemailer';
+import Announcement from "@/models/announcementModel";
 
 export async function POST(request) {
     try {
         await connectDB();
         const { content, sections } = await request.json();
-
+        const announcement = await Announcement.create({ content, sections });
         // Create email transporter
         const transporter = nodemailer.createTransport({
             service: 'gmail',
