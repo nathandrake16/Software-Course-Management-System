@@ -125,7 +125,7 @@ export default function SectionsPage() {
                             >
                                 <option value="">Select Semester</option>
                                 <option value="FALL24">FALL24</option>
-                                <option value=" SPRING25">SPRING25</option>
+                                <option value="SPRING25">SPRING25</option>
                                 <option value="SUMMER25">SUMMER25</option>
                             </select>
                         </div>
