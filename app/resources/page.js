@@ -1,193 +1,167 @@
-"use client"; // Add this if you're using client-side features like useState, useEffect, etc.
-
+"use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import NavBar from "@/components/NavBar";
+import { useRouter } from "next/navigation";
 
-const ResourcePage = () => {
-    const [link, setLink] = useState(""); // State for the website link
-    const [course, setCourse] = useState(""); // State for the selected course
-    const [resources, setResources] = useState([]); // State to store all resources
-    const [error, setError] = useState(""); // State for error messages
-    const [loading, setLoading] = useState(false); // State for loading spinner
-    const [selectedCourse, setSelectedCourse] = useState(""); // State to store the selected course
-    const [userRole, setUserRole] = useState(null); // State to store the user's role
+export default function ResourcesPage() {
+    const [resources, setResources] = useState([]);
+    const [newResource, setNewResource] = useState({
+        course: "",
+        semester: "",
+        resources: "", // Add resources to state
+    });
+    const [error, setError] = useState(null);
+    const router = useRouter();
 
-    // Fetch all resources on page load
+    // Fetch resources on component mount
     useEffect(() => {
+        const fetchResources = async () => {
+            try {
+                const response = await axios.get("/api/resources");
+                setResources(response.data.resources || []);
+            } catch (error) {
+                console.error("Error fetching resources:", error);
+                setError("Failed to fetch resources");
+            }
+        };
+
         fetchResources();
-        fetchUserRole();
     }, []);
 
-    const fetchResources = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get("/api/resources");
-            setResources(response.data);
-        } catch (error) {
-            console.error("Error fetching resources:", error);
-            setError("Failed to fetch resources");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchUserRole = async () => {
-        try {
-            const response = await axios.get("/api/user-role");
-            setUserRole(response.data.role);
-        } catch (error) {
-            console.error("Error fetching user role:", error);
-            setUserRole(null); // Set userRole to null if error occurs
-        }
-    };
-
-    const handleUpload = async (e) => {
+    // Handle resource creation
+    const handleCreateResource = async (e) => {
         e.preventDefault();
+        
+        // Validate inputs
+        if (!newResource.course || !newResource.semester || !newResource.resources) {
+            setError("Please fill in all fields: course, semester, and resource");
+            return;
+        }
+
         try {
-            // Send the link and course as JSON data
-            const response = await axios.post("/api/resources/upload", {
-                link,
-                course,
+            // Clear any previous errors
+            setError(null);
+
+            const response = await axios.post("/api/resources", newResource, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             });
-            console.log("Resource uploaded:", response.data);
-            setLink(""); // Clear the input after upload
-            setCourse(""); // Clear the course selection
-            fetchResources(); // Refresh the list of resources
+
+            // Add new resource to the list
+            setResources(prevResources => [...prevResources, response.data.resource]);
+            
+            // Reset form
+            setNewResource({ course: "", semester: "", resources: "" });
         } catch (error) {
-            console.error("Error uploading resource:", error);
-            setError("Failed to upload resource");
+            console.error("Error creating resource:", error);
+            setError(error.response?.data?.error || "Failed to create resource");
         }
     };
 
-    const handleDelete = async (resourceId) => {
+    // Navigate to resource details
+    const viewResourceDetails = (resourceId) => {
+        router.push(`/resources/${resourceId}`);
+    };
+
+    // Handle resource deletion
+    const handleDeleteResource = async (resourceId) => {
         try {
-            await axios.delete(`/api/resources/${resourceId}`);
-            fetchResources(); // Refresh the list of resources
+            const response = await axios.delete(`/api/resources/${resourceId}`);
+            // Remove the deleted resource from the state
+            setResources(prevResources => prevResources.filter(resource => resource._id !== resourceId));
+            alert(response.data.message); // Show success message
         } catch (error) {
             console.error("Error deleting resource:", error);
-            setError("Failed to delete resource");
-        }
-    };
-
-    const handleApprove = async (resourceId) => {
-        try {
-            await axios.put(`/api/resources/${resourceId}/approve`);
-            fetchResources(); // Refresh the list of resources
-        } catch (error) {
-            console.error("Error approving resource:", error);
-            setError("Failed to approve resource");
-        }
-    };
-
-    const handleCourseClick = async (course) => {
-        setSelectedCourse(course);
-        try {
-            const response = await axios.get(`/api/resources?course=${course}`);
-            setResources(response.data);
-        } catch (error) {
-            console.error("Error fetching resources for course:", error);
-            setError("Failed to fetch resources for course");
+            alert("Failed to delete resource");
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
-            <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
-                <h1 className="text-2xl font-bold mb-6 text-black text-center">Resources</h1>
-
-                {/* Course Buttons */}
-                <div className="flex flex-wrap justify-center mb-8">
-                    <button
-                        onClick={() => handleCourseClick("CSE370")}
-                        className={`bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4 mb-4 ${
-                            selectedCourse === "CSE370" ? "bg-blue-600" : ""
-                        }`}
-                    >
-                        CSE370
-                    </button>
-                    <button
-                        onClick={() => handleCourseClick("CSE470")}
-                        className={`bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4 mb-4 ${
-                            selectedCourse === "CSE470" ? "bg-blue-600" : ""
-                        }`}
-                    >
-                        CSE470
-                    </button>
-                    <button
-                        onClick={() => handleCourseClick("CSE471")}
-                        className={`bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition duration-200 mr-4 mb-4 ${
-                            selectedCourse === "CSE471" ? "bg-blue-600" : ""
-                        }`}
-                    >
-                        CSE471
-                    </button>
-                </div>
-
-                <form onSubmit={handleUpload} className="mb-6">
-                    <input
-                        type="text"
-                        placeholder="Resource Link"
-                        value={link}
-                        onChange={(e) => setLink(e.target.value)}
-                        className="border p-2 rounded w-full mb-4"
-                        required
-                    />
-                    <select
-                        value={course}
-                        onChange={(e) => setCourse(e.target.value)}
-                        className="border p-2 rounded w-full mb-4"
-                        required
-                    >
-                        
-                        <option className="text-black" value="">Select Course</option>
-                        <option className="text-black" value="CSE370">CSE370</option>
-                        <option className="text-black" value="CSE470">CSE470</option>
-                        <option className="text-black" value="CSE471">CSE471</option>
-                    </select>
-                    <button
-                        type="submit"
-                        className="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition duration-200"
-                    >
-                        Upload Resource
-                    </button>
-                </form>
-
-                {/* Resource List */}
-                <div>
-                    {loading ? (
-                        <p>Loading resources...</p>
-                    ) : (
-                        resources.map((resource) => (
-                            <div key={resource.id} className="flex justify-between items-center mb-4">
-                                <a href={resource.link} className="text-blue-600" target="_blank" rel="noopener noreferrer">
-                                    {resource.link}
-                                </a>
-                                <div>
-                                    <button
-                                        onClick={() => handleDelete(resource.id)}
-                                        className="bg-red-500 text-white p-1 rounded-lg hover:bg-red-600 transition duration-200 mr-2"
-                                    >
-                                        Delete
-                                    </button>
-                                    {userRole === "faculty" && (
-                                        <button
-                                            onClick={() => handleApprove(resource.id)}
-                                            className="bg-yellow-500 text-white p-1 rounded-lg hover:bg-yellow-600 transition duration-200"
-                                        >
-                                            Approve
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
+        <div>
+            <NavBar />
+            <div className="container mx-auto p-6">
+                <h1 className="text-3xl font-bold mb-6">Manage Resources</h1>
 
                 {/* Error Message */}
-                {error && <p className="text-red-500">{error}</p>}
+                {error && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        {error}
+                    </div>
+                )}
+
+                {/* Resource Creation Form */}
+                <div className="bg-white text-black shadow-md rounded px-8 pt-6 pb-8 mb-6">
+                    <h2 className="text-2xl mb-4">Create New Resource</h2>
+                    <form onSubmit={handleCreateResource} className="space-y-4">
+                        <div>
+                            <label className="block mb-2">Course</label>
+                            <select
+                                value={newResource.course}
+                                onChange={(e) => {
+                                    setNewResource({...newResource, course: e.target.value});
+                                    setError(null); // Clear any previous errors
+                                }}
+                                className="w-full p-2 border rounded"
+                                required
+                            >
+                                <option value="">Select Course</option>
+                                <option value="CSE370">CSE370</option>
+                                <option value="CSE470">CSE470</option>
+                                <option value="CSE471">CSE471</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block mb-2">Semester</label>
+                            <select
+                                value={newResource.semester}
+                                onChange={(e) => {
+                                    setNewResource({...newResource, semester: e.target.value});
+                                    setError(null); // Clear any previous errors
+                                }}
+                                className="w-full p-2 border rounded"
+                                required
+                            >
+                                <option value="">Select Semester</option>
+                                <option value="FALL24">FALL24</option>
+                                <option value=" SPRING25">SPRING25</option>
+                                <option value="SUMMER25">SUMMER25</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block mb-2">Resource</label>
+                            <input
+                                type="string"
+                                value={newResource.resources}
+                                onChange={(e) => {
+                                    setNewResource({...newResource, resources: e.target.value});
+                                    setError(null); // Clear any previous errors
+                                }}
+                                className="w-full p-2 border rounded"
+                                required
+                            />
+                        </div>
+                        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+                            Create Resources
+                        </button>
+                    </form>
+                </div>
+
+                {/* Display Resources */}
+                <h2 className="text-2xl mb-4">Existing Resources</h2>
+                <ul className="list-disc pl-5">
+                    {resources.map(resource => (
+                        <li key={resource._id} className="mb-2">
+                            {resource.course} - {resource.semester} (Resource {resource.resources})
+                            
+                            <button onClick={() => handleDeleteResource(resource._id)} className="ml-4 text-red-500">
+                                Delete
+                            </button>
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     );
-};
-
-export default ResourcePage;
+}

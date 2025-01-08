@@ -1,22 +1,31 @@
-// models/resourceModel.js
 import mongoose from "mongoose";
 
 const resourceSchema = mongoose.Schema({
     course: {
         type: String,
         required: true,
-        enum: ["CSE370", "CSE470", "CSE471"], // Only allow specific courses
+        enum: ['CSE370', 'CSE470', 'CSE471']
     },
-    link: {
+    semester: {
         type: String,
         required: true,
-        trim: true, // Remove extra spaces from the link
+        enum: ['FALL24', 'SPRING25', 'SUMMER25']
     },
-    isApproved: {
-        type: Boolean,
-        default: false, // Default value is false (pending approval)
+    faculty: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users',
+        required: true
     },
-}, { timestamps: true }); // Automatically add createdAt and updatedAt fields
+    students: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    }],
+    resources: {
+        type: String,
+
+        required: true // Make sure to set this when creating a section
+    }
+}, { timestamps: true });
 
 const Resource = mongoose.models.resources || mongoose.model("resources", resourceSchema);
 
