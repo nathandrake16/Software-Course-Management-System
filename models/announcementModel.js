@@ -8,7 +8,11 @@ const announcementSchema = mongoose.Schema({
     sections: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sections' 
-    }]
+    }],
+    deadline: {
+        type: Date,
+        required: false
+    }
 }, { 
     timestamps: true 
 });

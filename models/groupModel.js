@@ -13,7 +13,6 @@ const groupSchema = mongoose.Schema({
     group_number: {
         type: Number,
         required: true,
-        unique: true
     },
     progress: {
         string: {

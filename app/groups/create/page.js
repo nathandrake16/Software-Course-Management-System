@@ -16,6 +16,7 @@ export default function CreateGroupPage() {
         const fetchSections = async () => {
             try {
                 const response = await axios.get("/api/sections");
+                console.log(response.data);
                 setSections(response.data.sections || []);
             } catch (error) {
                 console.error("Error fetching sections:", error);
