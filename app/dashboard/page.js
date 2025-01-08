@@ -156,7 +156,7 @@ function StudentDashboard({ user }) {
             <DashboardCard 
                 title="Group Details" 
                 description="View and manage your groups"
-                href="/groups" // Link to the Group Details component
+                href={`/groups/${user._id}`} // Link to the Group Details component
                 icon="📋🔍"
             />
         </div>    );

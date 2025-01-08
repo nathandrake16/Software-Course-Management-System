@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/db/db";
 import Section from "@/models/sectionModel";
 import { getIdFromToken } from "@/helpers/getIdFromToken";
+import User from "@/models/userModel";
 
 export async function GET(request) {
     try {
@@ -14,6 +15,14 @@ export async function GET(request) {
         
         if (!facultyId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        const user = await User.findById(facultyId);
+        if (!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+        if (user.role == "student"){
+            const sections = await Section.find({ students: facultyId });
+            return NextResponse.json({ sections }, { status: 200 });
         }
 
         // Find sections for the specific faculty
