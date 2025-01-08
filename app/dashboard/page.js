@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import NavBar from "@/components/NavBar"; // Ensure this path is correct
+import NavBar from "@/components/NavBar";
 import Link from "next/link";
 
 export default function Dashboard() {
@@ -41,7 +41,7 @@ export default function Dashboard() {
             <NavBar />
             <div className="container mx-auto p-6">
                 <h1 className="text-3xl font-bold mb-6">
-                    Welcome, {user.name}, {user.role}
+                    Welcome {user.role}, {user.name}! 
                 </h1>
 
                 {user.role === "faculty" && <FacultyDashboard user={user} />}
@@ -51,20 +51,22 @@ export default function Dashboard() {
     );
 }
 
-function FacultyDashboard() {
+function FacultyDashboard({user}) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {user.role === "faculty" && (
+            <DashboardCard 
+                title="Announcements" 
+                description="Create and manage course announcements"
+                href="/dashboard/announcement"
+                icon="📢"
+            />
+            )}
             <DashboardCard 
                 title="Manage Sections" 
                 description="Create and manage course sections"
                 href="/sections"
                 icon="📚"
-            />
-            <DashboardCard 
-                title="Create New Section" 
-                description="Add a new section for courses"
-                href="/create-section" // Link to the CreateSection component
-                icon="➕"
             />
             <DashboardCard 
                 title="Course Management" 
@@ -97,10 +99,17 @@ function FacultyDashboard() {
                 icon="👤"
             />
             <DashboardCard 
+                title="Manage Groups" 
+                description="Create and manage student groups"
+                href="/groups" // Link to the Manage Groups component
+                icon="🗂️"
+            />
+            <DashboardCard 
                 title="Resource Management" 
                 description="View and manage course materials"
                 href="/resources"
                 icon="📝"
+        
             />
         </div>
     );
@@ -152,10 +161,17 @@ function StudentDashboard({ user }) {
                 icon="👤"
             />
             <DashboardCard 
+                title="Group Details" 
+                description="View and manage your groups"
+                href={`/groups/${user._id}`} // Link to the Group Details component
+                icon="📋🔍"
+            />
+            <DashboardCard 
                 title="Resource Management" 
                 description="View and manage course materials"
                 href="/resources"
                 icon="📝"
+        
             />
         </div>    );
 }

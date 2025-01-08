@@ -7,7 +7,7 @@ export async function middleware(request) {
     // const verified = await verifiedToken(request)
     // console.log(verified)
     const token = request.cookies.get("token")
-    if (currentPath === "/users/login" || "/users/signup" ) {
+    if (currentPath === "/users/login" || currentPath === "/users/signup" ) {
         if (token) {
             console.log("Verified user trying to access public")
             return NextResponse.redirect(new URL('/users/', request.url))

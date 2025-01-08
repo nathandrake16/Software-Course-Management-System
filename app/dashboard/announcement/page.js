@@ -9,6 +9,8 @@ export default function Announcement() {
     const [content, setContent] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [sendEmail, setSendEmail] = useState(false);
+    const [deadline, setDeadline] = useState("");
 
     useEffect(() => {
         const fetchSections = async () => {
@@ -40,21 +42,26 @@ export default function Announcement() {
         }
 
         try {
-            const response = await axios.post("/api/announcements", {
-                content,
-                sections: selectedSections,
-            });
-
-            if (response.status === 200) {
-                setSuccess("Announcement created successfully!");
-                setContent("");
-                setSelectedSections([]);
-            }
+        
+                const announcementResponse = await axios.post("/api/announcements", {
+                    content,
+                    sections: selectedSections,
+                    deadline: deadline || null,
+                    sendMail : sendEmail
+                });
+                if (announcementResponse.status === 200) {
+                    setSuccess("Announcement created successfully!" + (sendEmail ? " Email notifications sent." : ""));
+                    setContent("");
+                    setSelectedSections([]);
+                    setSendEmail(false);
+                }
+    
         } catch (error) {
             console.error("Error creating announcement:", error);
             setError("An error occurred while creating the announcement.");
         }
     };
+
 
     const handleSectionChange = (sectionId) => {
         setSelectedSections((prev) =>
@@ -131,7 +138,31 @@ export default function Announcement() {
                             ))}
                         </div>
                     </div>
-
+                    
+                    <div>
+                        <label htmlFor="deadline" className="block text-lg font-medium text-gray-700">
+                            Deadline (Optional)
+                        </label>
+                        <input
+                            type="datetime-local"
+                            id="deadline"
+                            value={deadline}
+                            onChange={(e) => setDeadline(e.target.value)}
+                            className="w-full p-4 text-gray-800 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                        <input
+                            type="checkbox"
+                            id="sendEmail"
+                            checked={sendEmail}
+                            onChange={(e) => setSendEmail(e.target.checked)}
+                            className="form-checkbox h-5 w-5 text-blue-600"
+                        />
+                        <label htmlFor="sendEmail" className="text-gray-700">
+                            Send announcement via email
+                        </label>
+                    </div>
                     <div className="flex justify-center">
                         <button
                             type="submit"

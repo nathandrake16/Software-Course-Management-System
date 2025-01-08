@@ -65,6 +65,19 @@ export default function SectionsPage() {
         router.push(`/sections/${sectionId}`);
     };
 
+    // Handle section deletion
+    const handleDeleteSection = async (sectionId) => {
+        try {
+            const response = await axios.delete(`/api/sections/${sectionId}`);
+            // Remove the deleted section from the state
+            setSections(prevSections => prevSections.filter(section => section._id !== sectionId));
+            alert(response.data.message); // Show success message
+        } catch (error) {
+            console.error("Error deleting section:", error);
+            alert("Failed to delete section");
+        }
+    };
+
     return (
         <div>
             <NavBar />
@@ -121,7 +134,7 @@ export default function SectionsPage() {
                             <input
                                 type="number"
                                 value={newSection.section_number}
-                                onChange={( e) => {
+                                onChange={(e) => {
                                     setNewSection({...newSection, section_number: e.target.value});
                                     setError(null); // Clear any previous errors
                                 }}
@@ -143,6 +156,9 @@ export default function SectionsPage() {
                             {section.course} - {section.semester} (Section {section.section_number})
                             <button onClick={() => viewSectionDetails(section._id)} className="ml-4 text-blue-500">
                                 View Details
+                            </button>
+                            <button onClick={() => handleDeleteSection(section._id)} className="ml-4 text-red-500">
+                                Delete
                             </button>
                         </li>
                     ))}

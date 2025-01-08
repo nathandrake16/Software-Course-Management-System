@@ -8,7 +8,7 @@ await connectDB()
 export async function POST(request) {
     try {
         const body = await request.json()
-        const {name, university_email, id, password, arole} = body
+        const {name, university_email, id, password, role} = body
         var user = await User.findOne({university_email})
         if (user) {
             return NextResponse.json({error:"The email is already registred"},{status:400})
@@ -17,9 +17,12 @@ export async function POST(request) {
         if (user) {
             return NextResponse.json({error:"The ID is already registred"},{status:400})
         }
+        if (university_email.split("@")[1] != "g.bracu.ac.bd" && university_email.split("@")[1] != "bracu.ac.bd") {
+            return NextResponse.json({error:"Only BRACU student/faculty can register"},{status:400})
+        }
         const salt = await bcryptjs.genSalt(10)
         const hashedPassword = await bcryptjs.hash(password,salt)
-        const newUser = new User({name, university_email,id, password: hashedPassword, role: arole})
+        const newUser = new User({name, university_email,id, password: hashedPassword, role: role})
         const savedUser = await newUser.save()
         return NextResponse.json({success:true,message:"User created successfully!",user:savedUser},{status:201})
 
