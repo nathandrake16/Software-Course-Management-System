@@ -125,12 +125,12 @@ function StudentDashboard({ user }) {
                 icon="📚"
             />
 
-            <DashboardCard 
+            {/* <DashboardCard 
                 title="Course Management" 
                 description="Add and manage course materials"
                 href="/courses"
                 icon="📝"
-            />
+            /> */}
             <DashboardCard 
                 title="Profile" 
                 description="Manage your profile settings"
