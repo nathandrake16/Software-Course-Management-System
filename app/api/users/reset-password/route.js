@@ -18,7 +18,7 @@ export async function POST(request, res) {
         }
 
         const resetToken = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: '1h' });
-        const resetUrl = `http://localhost:${process.env.PORT}/reset-password?token=${resetToken}`;
+        const resetUrl = `https://scms.asiradnan.com/reset-password?token=${resetToken}`;
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',

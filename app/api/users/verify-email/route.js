@@ -13,7 +13,7 @@ export async function GET(request, response) {
     try {
         const id = await getIdFromToken(request)
         const token = jwt.sign({ id: id }, process.env.SECRET, { expiresIn: '1d' });
-        const url = `http://localhost:3000/api/users/verify-email/${token}`;
+        const url = `https://scms.asiradnan.com/api/users/verify-email/${token}`;
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
