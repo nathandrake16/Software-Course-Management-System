@@ -2,9 +2,14 @@ import { connectDB } from "@/db/db";
 import Group from "@/models/groupModel";
 import { NextResponse } from "next/server";
 import mongoose from 'mongoose';
+import User from "@/models/userModel";
+import { getIdFromToken } from "@/helpers/getIdFromToken";
+
+
+await connectDB();
 
 export async function POST(request, context) {
-    await connectDB();
+
     const { id } = context.params;
 
     try {
@@ -19,10 +24,10 @@ export async function POST(request, context) {
         }
 
         // Add the new student to the group's students array
-        group.students.push({ 
-            name, 
+        group.students.push({
+            name,
             university_email,
-            _id: new mongoose.Types.ObjectId() 
+            _id: new mongoose.Types.ObjectId()
         });
         await group.save();
 
@@ -33,44 +38,66 @@ export async function POST(request, context) {
     }
 }
 export async function PUT(request, { params }) {
-    await connectDB();
-  
     try {
         const { id } = await params; // Get the group ID from the URL parameters
         const reqBody = await request.json(); // Parse the request body
-  
-        // Log the received data for debugging
-        console.log("Received update request:", {
-            groupId: id,
-            progressDetails: reqBody.progress.details
-        });
-  
-        // Update the group's progress details
-        const updatedGroup = await Group.findByIdAndUpdate(
-            id, 
-            { 
-                'progress.details': reqBody.progress.details // Update the details field
-            }, 
-            { 
-                new: true // Return the updated document
+        const userId = await getIdFromToken(request)
+        const user = await User.findById(userId);
+        if (user.role === 'faculty') {
+            console.log(id)
+            const updatedGroup = await Group.findByIdAndUpdate(
+                id,
+                { 'progress.isApproved': reqBody.progress.isApproved }
+            );
+
+            if (!updatedGroup) {
+                return NextResponse.json({ message: "Group not found" }, { status: 404 });
             }
-        );
-  
-        if (!updatedGroup) {
-            return NextResponse.json({ message: "Group not found" }, { status: 404 });
+
+            return NextResponse.json({
+                message: "Progress updated successfully",
+                group: updatedGroup
+            }, { status: 200 });
         }
-    
-        return NextResponse.json({ 
-            message: "Progress updated successfully", 
-            group: updatedGroup 
-        }, { status: 200 });
-  
+        else {
+            const updatedGroup = await Group.findByIdAndUpdate(
+                id,
+                {
+                    'progress.details': reqBody.progress.details,
+                    'progress.string': reqBody.progress.string,
+                }
+            );
+            if (!updatedGroup) {
+                return NextResponse.json({ message: "Group not found" }, { status: 404 });
+            }
+
+            return NextResponse.json({
+                message: "Progress updated successfully",
+                group: updatedGroup
+            }, { status: 200 });
+        }
+
     } catch (error) {
         console.error("Error updating group progress:", error);
-        return NextResponse.json({ 
-            message: "Error updating progress", 
-            error: error.message 
+        return NextResponse.json({
+            message: "Error updating progress",
+            error: error.message
         }, { status: 500 });
     }
-  }
-  
+}
+export async function GET(request, { params }) {
+    try {
+        const { id } = await params;
+        const user = await User.findById(id);
+        if (!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+        const email = user.university_email;
+        const groups = await Group.find({ 'students.university_email': email });
+        return NextResponse.json({ group: groups[0] }, { status: 200 });
+    }
+    catch (error) {
+        console.error("Error fetching groups:", error);
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    }
+}

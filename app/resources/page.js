@@ -4,38 +4,38 @@ import axios from "axios";
 import NavBar from "@/components/NavBar";
 import { useRouter } from "next/navigation";
 
-export default function SectionsPage() {
-    const [sections, setSections] = useState([]);
-    const [newSection, setNewSection] = useState({
+export default function ResourcesPage() {
+    const [resources, setResources] = useState([]);
+    const [newResource, setNewResource] = useState({
         course: "",
         semester: "",
-        section_number: "", // Add section_number to state
+        resources: "", // Add resources to state
     });
     const [error, setError] = useState(null);
     const router = useRouter();
 
-    // Fetch sections on component mount
+    // Fetch resources on component mount
     useEffect(() => {
-        const fetchSections = async () => {
+        const fetchResources = async () => {
             try {
-                const response = await axios.get("/api/sections");
-                setSections(response.data.sections || []);
+                const response = await axios.get("/api/resources");
+                setResources(response.data.resources || []);
             } catch (error) {
-                console.error("Error fetching sections:", error);
-                setError("Failed to fetch sections");
+                console.error("Error fetching resources:", error);
+                setError("Failed to fetch resources");
             }
         };
 
-        fetchSections();
+        fetchResources();
     }, []);
 
-    // Handle section creation
-    const handleCreateSection = async (e) => {
+    // Handle resource creation
+    const handleCreateResource = async (e) => {
         e.preventDefault();
         
         // Validate inputs
-        if (!newSection.course || !newSection.semester || !newSection.section_number) {
-            setError("Please fill in all fields: course, semester, and section number");
+        if (!newResource.course || !newResource.semester || !newResource.resources) {
+            setError("Please fill in all fields: course, semester, and resource");
             return;
         }
 
@@ -43,34 +43,38 @@ export default function SectionsPage() {
             // Clear any previous errors
             setError(null);
 
-            const response = await axios.post("/api/sections", newSection, {headers: {'Content-Type': 'application/json'}});
+            const response = await axios.post("/api/resources", newResource, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
 
-            // Add new section to the list
-            setSections(prevSections => [...prevSections, response.data.section]);
+            // Add new resource to the list
+            setResources(prevResources => [...prevResources, response.data.resource]);
             
             // Reset form
-            setNewSection({ course: "", semester: "", section_number: "" });
+            setNewResource({ course: "", semester: "", resources: "" });
         } catch (error) {
-            console.error("Error creating section:", error);
-            setError(error.response?.data?.error || "Failed to create section");
+            console.error("Error creating resource:", error);
+            setError(error.response?.data?.error || "Failed to create resource");
         }
     };
 
-    // Navigate to section details
-    const viewSectionDetails = (sectionId) => {
-        router.push(`/sections/${sectionId}`);
+    // Navigate to resource details
+    const viewResourceDetails = (resourceId) => {
+        router.push(`/resources/${resourceId}`);
     };
 
-    // Handle section deletion
-    const handleDeleteSection = async (sectionId) => {
+    // Handle resource deletion
+    const handleDeleteResource = async (resourceId) => {
         try {
-            const response = await axios.delete(`/api/sections/${sectionId}`);
-            // Remove the deleted section from the state
-            setSections(prevSections => prevSections.filter(section => section._id !== sectionId));
+            const response = await axios.delete(`/api/resources/${resourceId}`);
+            // Remove the deleted resource from the state
+            setResources(prevResources => prevResources.filter(resource => resource._id !== resourceId));
             alert(response.data.message); // Show success message
         } catch (error) {
-            console.error("Error deleting section:", error);
-            alert("Failed to delete section");
+            console.error("Error deleting resource:", error);
+            alert("Failed to delete resource");
         }
     };
 
@@ -78,7 +82,7 @@ export default function SectionsPage() {
         <div>
             <NavBar />
             <div className="container mx-auto p-6">
-                <h1 className="text-3xl font-bold mb-6">Manage Sections</h1>
+                <h1 className="text-3xl font-bold mb-6">Manage Resources</h1>
 
                 {/* Error Message */}
                 {error && (
@@ -87,16 +91,16 @@ export default function SectionsPage() {
                     </div>
                 )}
 
-                {/* Section Creation Form */}
-                <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-6">
-                    <h2 className="text-2xl mb-4">Create New Section</h2>
-                    <form onSubmit={handleCreateSection} className="space-y-4">
+                {/* Resource Creation Form */}
+                <div className="bg-white text-black shadow-md rounded px-8 pt-6 pb-8 mb-6">
+                    <h2 className="text-2xl mb-4">Create New Resource</h2>
+                    <form onSubmit={handleCreateResource} className="space-y-4">
                         <div>
                             <label className="block mb-2">Course</label>
                             <select
-                                value={newSection.course}
+                                value={newResource.course}
                                 onChange={(e) => {
-                                    setNewSection({...newSection, course: e.target.value});
+                                    setNewResource({...newResource, course: e.target.value});
                                     setError(null); // Clear any previous errors
                                 }}
                                 className="w-full p-2 border rounded"
@@ -111,9 +115,9 @@ export default function SectionsPage() {
                         <div>
                             <label className="block mb-2">Semester</label>
                             <select
-                                value={newSection.semester}
+                                value={newResource.semester}
                                 onChange={(e) => {
-                                    setNewSection({...newSection, semester: e.target.value});
+                                    setNewResource({...newResource, semester: e.target.value});
                                     setError(null); // Clear any previous errors
                                 }}
                                 className="w-full p-2 border rounded"
@@ -121,17 +125,17 @@ export default function SectionsPage() {
                             >
                                 <option value="">Select Semester</option>
                                 <option value="FALL24">FALL24</option>
-                                <option value="SPRING25">SPRING25</option>
+                                <option value=" SPRING25">SPRING25</option>
                                 <option value="SUMMER25">SUMMER25</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block mb-2">Section Number</label>
+                            <label className="block mb-2">Resource</label>
                             <input
-                                type="number"
-                                value={newSection.section_number}
+                                type="string"
+                                value={newResource.resources}
                                 onChange={(e) => {
-                                    setNewSection({...newSection, section_number: e.target.value});
+                                    setNewResource({...newResource, resources: e.target.value});
                                     setError(null); // Clear any previous errors
                                 }}
                                 className="w-full p-2 border rounded"
@@ -139,21 +143,19 @@ export default function SectionsPage() {
                             />
                         </div>
                         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-                            Create Section
+                            Create Resources
                         </button>
                     </form>
                 </div>
 
-                {/* Display Sections */}
-                <h2 className="text-2xl mb-4">Existing Sections</h2>
+                {/* Display Resources */}
+                <h2 className="text-2xl mb-4">Existing Resources</h2>
                 <ul className="list-disc pl-5">
-                    {sections.map(section => (
-                        <li key={section._id} className="mb-2">
-                            {section.course} - {section.semester} (Section {section.section_number})
-                            <button onClick={() => viewSectionDetails(section._id)} className="ml-4 text-blue-500">
-                                View Details
-                            </button>
-                            <button onClick={() => handleDeleteSection(section._id)} className="ml-4 text-red-500">
+                    {resources.map(resource => (
+                        <li key={resource._id} className="mb-2">
+                            {resource.course} - {resource.semester} (Resource {resource.resources})
+                            
+                            <button onClick={() => handleDeleteResource(resource._id)} className="ml-4 text-red-500">
                                 Delete
                             </button>
                         </li>

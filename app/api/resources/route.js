@@ -2,9 +2,9 @@
 //POST -create section
 import { NextResponse } from "next/server";
 import { connectDB } from "@/db/db";
-import Section from "@/models/sectionModel";
+import Section from "@/models/resourceModel";
 import { getIdFromToken } from "@/helpers/getIdFromToken";
-import User from "@/models/userModel";
+import Resources from "@/models/resourceModel";
 
 export async function GET(request) {
     try {
@@ -16,21 +16,13 @@ export async function GET(request) {
         if (!facultyId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-        const user = await User.findById(facultyId);
-        if (!user) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
-        if (user.role == "student"){
-            const sections = await Section.find({ students: facultyId });
-            return NextResponse.json({ sections }, { status: 200 });
-        }
 
         // Find sections for the specific faculty
-        const sections = await Section.find({ faculty: facultyId });
+        const resources = await Resources.find({ faculty: facultyId });
         
-        return NextResponse.json({ sections }, { status: 200 });
+        return NextResponse.json({ resources }, { status: 200 });
     } catch (error) {
-        console.error("Error fetching sections:", error);
+        console.error("Error fetching resources:", error);
         return NextResponse.json({ 
             error: "Internal Server Error", 
             details: error.message 
@@ -50,34 +42,34 @@ export async function POST(request) {
         }
 
         // Parse request body
-        const reqBody = await request.json(); // data nitese
+        const reqBody = await request.json();
         
         // Validate input
-        if (!reqBody.course || !reqBody.semester || reqBody.section_number == null) {
-            return NextResponse.json({ error: "Course, semester, and section number are required" }, { status: 400 });
+        if (!reqBody.course || !reqBody.semester || reqBody.resources == null) {
+            return NextResponse.json({ error: "Course, semester, and resource are required" }, { status: 400 });
         }
 
-        // Check if section_number is already in use
-        const existingSection = await Section.findOne({ section_number: reqBody.section_number, course: reqBody.course, semester: reqBody.semester });  
-        if (existingSection) {
-            return NextResponse.json({ error: "Section number already exists" }, { status: 400 });
+        // Check if resources is already in use
+        const existingResource = await Resources.findOne({ resources: reqBody.resources });
+        if (existingResource) {
+            return NextResponse.json({ error: "Resource already exists" }, { status: 400 });
         }
 
         // Create new section
-        const newSection = new Section({
+        const newResource = new Resources({
             course: reqBody.course,
             semester: reqBody.semester,
             faculty: userId, // Assuming the student is creating a section under their ID
             students: [],
-            section_number: reqBody.section_number // Ensure this is provided
+            resources: reqBody.resources // Ensure this is provided
         });
 
         // Save section
-        const savedSection = await newSection.save();
+        const savedResource = await newResource.save();
         
-        return NextResponse.json({ section: savedSection }, { status: 201 });
+        return NextResponse.json({ resource: savedResource }, { status: 201 });
     } catch (error) {
-        console.error("Error creating section:", error);
+        console.error("Error creating resources:", error);
         return NextResponse.json({ 
             error: "Internal Server Error", 
             details: error.message 

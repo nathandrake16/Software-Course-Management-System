@@ -84,12 +84,24 @@ export async function POST(request) {
         message: "Maximum 4 students allowed per group." 
       }, { status: 400 });
     }
+    const existingGroup = await Group.findOne({ group_number, section });
+    if (existingGroup) {
+      return NextResponse.json({
+        message: "Group already exists",
+        details: "A group with the same group number and section already exists"
+      }, { status: 400 });
+    }
 
     // Create new group
     const newGroup = new Group({
       group_number: Number(group_number),
       section,
-      students: validStudents
+      students: validStudents,
+      progress: {
+        string: "Pending Approval",
+        details: "",
+        isApproved: false
+      }
     });
 
     console.log("Attempting to save group:", newGroup);
