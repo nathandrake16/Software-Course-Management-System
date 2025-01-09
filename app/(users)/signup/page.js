@@ -21,7 +21,7 @@ export default function SignUp() {
             const response = await axios.post("/api/users/signup", user);
             router.push("/login");
         } catch (error) {
-            setError(error.response?.data?.message || "Signup failed. Please try again.");
+            setError(error.response?.data?.error || "Signup failed. Please try again.");
         }
     };
 

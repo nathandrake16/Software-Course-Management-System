@@ -21,7 +21,7 @@ export default function LogIn() {
             const response = await axios.post("/api/users/login", user);
             router.push("/");
         } catch (error) {
-            setError(error.response?.data?.message || "Login failed. Please check your credentials.");
+            setError(error.response?.data?.error || "Login failed. Please check your credentials.");
         }
     };
 

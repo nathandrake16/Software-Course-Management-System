@@ -21,9 +21,10 @@ export async function POST(request) {
         if (university_email.split("@")[1] != "g.bracu.ac.bd" && university_email.split("@")[1] != "bracu.ac.bd") {
             return NextResponse.json({error:"Only BRACU student/faculty can register"},{status:400})
         }
-        var role;
-        if (university_email.split("@")[1] != "g.bracu.ac.bd") role = "student"
+        var role = "faculty";
+        if (university_email.split("@")[1] === "g.bracu.ac.bd") role = "student"
         else role = "faculty"
+        console.log(role)
         const salt = await bcryptjs.genSalt(10)
         const hashedPassword = await bcryptjs.hash(password,salt)
         const newUser = new User({name, university_email,id, password: hashedPassword, role: role})
