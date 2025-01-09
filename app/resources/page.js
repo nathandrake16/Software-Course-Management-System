@@ -14,6 +14,10 @@ export default function ResourcesPage() {
   });
   const [error, setError] = useState(null);
   const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [message, setMessage] = useState(null); 
+  const [isLoading, setIsLoading] = useState(true); 
+  const [sectionId, setSectionId] = useState(null);
 
   useEffect(() => {
     const fetchSections = async () => {
@@ -25,20 +29,31 @@ export default function ResourcesPage() {
         setError("Unable to load sections. Please try again later.");
       }
     };
+    const fetchUserProfile = async () => {
+            try {
+                const response = await axios.get('/api/users/userinfo');
+                setUser(response.data.user);
+                setIsLoading(false);
+            } catch (error) {
+                setMessage('Failed to load profile');
+                setIsLoading(false);
+            }
+        };
+      fetchUserProfile();
 
     fetchSections();
   }, []);
 
-  const handleSelectSection = async (sectionId) => {
-    try {
-      const response = await axios.get(`/api/sections/${sectionId}`);
-      setSelectedSection(response.data.section);
-      setResources(response.data.resources || []);
-    } catch (error) {
-      console.error("Error fetching section details:", error);
-      setError("Failed to fetch section details");
-    }
-  };
+  // const handleSelectSection = async (sectionId) => {
+  //   try {
+  //     const response = await axios.get(`/api/sections/${sectionId}`);
+  //     setSelectedSection(response.data.section);
+  //     setResources(response.data.resources || []);
+  //   } catch (error) {
+  //     console.error("Error fetching section details:", error);
+  //     setError("Failed to fetch section details");
+  //   }
+  // };
 
   const handleUploadResource = async (e) => {
     e.preventDefault();
@@ -46,9 +61,10 @@ export default function ResourcesPage() {
       const formData = new FormData();
       formData.append("title", newResource.title);
       formData.append("file", newResource.file);
-
+      console.log(user)
+      formData.append("userId", user._id);  
       const response = await axios.post(
-        `/api/resources/${selectedSection._id}`,
+        `/api/resources/${sectionId}`,
         formData
       );
       setResources((prevResources) => [...prevResources, response.data.resource]);
@@ -77,7 +93,7 @@ export default function ResourcesPage() {
           <label className="block mb-2">Select Section</label>
           <select
             value={selectedSection?._id}
-            onChange={(e) => handleSelectSection(e.target.value)}
+            onChange={(e) => setSectionId(e.target.value)}
             className="w-full p-2 border rounded"
           >
             <option value="">Select a section</option>
@@ -90,7 +106,7 @@ export default function ResourcesPage() {
         </div>
 
         {/* Resource Upload Form */}
-        {selectedSection && (
+   
           <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-6">
             <h2 className="text-2xl mb-4">Upload Resource</h2>
             <form onSubmit={handleUploadResource} className="space-y-4">
@@ -122,7 +138,6 @@ export default function ResourcesPage() {
               </button>
             </form>
           </div>
-        )}
 
         {/* Resources List */}
         {resources.length > 0 && (
@@ -131,8 +146,8 @@ export default function ResourcesPage() {
             <ul>
               {resources.map((resource) => (
                 <li key={resource._id} className="mb-2">
-                  {resource.title} ({resource.file .name})
-                  <a href={resource.fileUrl} className="text-blue-500 ml-2" target="_blank" rel="noopener noreferrer">
+                  {resource.title} 
+                  <a href={`${resource.resource}`} className="text-blue-500 ml-2" target="_blank" rel="noopener noreferrer">
                     View
                   </a>
                 </li>

@@ -1,29 +1,23 @@
 import mongoose from "mongoose";
 
 const resourceSchema = mongoose.Schema({
-    course: {
+    title: {
         type: String,
-        required: true,
-        enum: ['CSE370', 'CSE470', 'CSE471']
-    },
-    semester: {
-        type: String,
-        required: true,
-        enum: ['FALL24', 'SPRING25', 'SUMMER25']
-    },
-    faculty: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'users',
         required: true
     },
-    students: [{
+    user:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'users'
-    }],
-    resources: {
+        ref: "User",
+        required: true
+    },
+    resource: {
         type: String,
-
-        required: true // Make sure to set this when creating a section
+        required: false 
+    },
+    section: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Section",
+        required: true
     }
 }, { timestamps: true });
 

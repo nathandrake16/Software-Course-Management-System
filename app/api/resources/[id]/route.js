@@ -1,16 +1,19 @@
 // Import necessary modules
 import { NextResponse } from "next/server";
 import { connectDB } from "@/db/db";
-import Section from "@/models/resourceModel";
+import Section from "@/models/sectionModel";
 import User from "@/models/userModel";
 import { getIdFromToken } from "@/helpers/getIdFromToken";
 import Resource from "@/models/resourceModel";
+
+import path from "path";
+import { writeFile } from "fs/promises";
 
 // GET resource details
 export async function GET(request, context) {
     try {
         await connectDB();
-        
+
         // Await params to access resourceId
         const { id: resourceId } = await context.params;
 
@@ -20,7 +23,7 @@ export async function GET(request, context) {
                 path: 'students',
                 select: 'name id university_email' // Select specific fields
             });
-        
+
         if (!resource) {
             return NextResponse.json({ error: "Resources not found" }, { status: 404 });
         }
@@ -36,56 +39,47 @@ export async function GET(request, context) {
 export async function POST(request, context) {
     try {
         await connectDB();
-        
+        const formData = await request.formData();
+        console.log("formData:", formData);
+
+        const file = formData.get("file");
+        const title = formData.get("title");
+        const userId = formData.get("userId");
+        // const { title, file, userId} = await request.json();
         // Verify faculty
         const facultyId = await getIdFromToken(request);
         if (!facultyId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
+        if (facultyId !== userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
-        // Await params to access resourceId
-        const { id: resourceId } = await context.params;
-
+        const { id: sectionId } = await context.params;
+        console.log("sec ID:", sectionId); //works
         // Parse request body
-        const { email } = await request.json();
+
 
         // Find the resource
-        const resource = await Resource.findById(resourceId);
-        if (!resource) {
-            return NextResponse.json({ error: "Resources not found" }, { status: 404 });
+        const section = await Section.findById(sectionId);
+        if (!section) {
+            return NextResponse.json({ error: "Section not found" }, { status: 404 });
         }
-
-        // Verify faculty owns the resource
-        if (resource.faculty.toString() !== facultyId) {
-            return NextResponse.json({ error: "Unauthorized to modify this resource" }, { status: 403 });
-        }
-
-        // Find student by email
-        const student = await User.findOne({ 
-            university_email: email, 
-            role: 'student' 
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const filename = file.name.replaceAll(" ", "_");
+        await writeFile(
+            path.join(process.cwd(), "public/uploads/" + filename),
+            buffer
+        );
+        const resource = new Resource({
+            title,
+            resource: `http://localhost:3000/uploads/${filename}`,
+            user: userId,
+            section: sectionId
         });
-
-        if (!student) {
-            return NextResponse.json({ error: "Student not found" }, { status: 404 });
-        }
-
-        // Check if student is already in the resource
-        if (resource.students.includes(student._id)) {
-            return NextResponse.json({ error: "Student already in resource" }, { status: 400 });
-        }
-
-        // Add student to resource
-        resource.students.push(student._id);
         await resource.save();
-
-        // Populate students for response
-        await resource.populate({
-            path: 'students',
-            select: 'name id university_email'
-        });
-
-        return NextResponse.json({ resource }, { status: 200 });
+       
+        return NextResponse.json({ Message: "Success", resource, status: 201 })
     } catch (error) {
         console.error("Error adding student to resource:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -96,13 +90,13 @@ export async function POST(request, context) {
 export async function DELETE(request, context) {
     try {
         await connectDB();
-        
+
         // Await params to access resourceId
         const { id: resourceId } = await context.params;
 
         // Find and delete the resource
-        const deletedResource= await Resource.findByIdAndDelete(resourceId);
-        
+        const deletedResource = await Resource.findByIdAndDelete(resourceId);
+
         if (!deletedResource) {
             return NextResponse.json({ error: "Resources not found" }, { status: 404 });
         }
