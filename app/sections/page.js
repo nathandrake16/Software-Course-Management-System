@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import { useRouter } from "next/navigation";
 
 export default function SectionsPage() {
+    const [user, setUser] = useState(null);
     const [sections, setSections] = useState([]);
     const [newSection, setNewSection] = useState({
         course: "",
@@ -25,14 +26,22 @@ export default function SectionsPage() {
                 setError("Failed to fetch sections");
             }
         };
-
+        const fetchUserInfo = async () => {
+            try {
+                const response = await axios.get("/api/users/userinfo");
+                setUser(response.data.user);
+            } catch (error) {
+                console.error("Error fetching user info:", error);
+            }
+        }
+        fetchUserInfo();
         fetchSections();
     }, []);
 
     // Handle section creation
     const handleCreateSection = async (e) => {
         e.preventDefault();
-        
+
         // Validate inputs
         if (!newSection.course || !newSection.semester || !newSection.section_number) {
             setError("Please fill in all fields: course, semester, and section number");
@@ -43,11 +52,11 @@ export default function SectionsPage() {
             // Clear any previous errors
             setError(null);
 
-            const response = await axios.post("/api/sections", newSection, {headers: {'Content-Type': 'application/json'}});
+            const response = await axios.post("/api/sections", newSection, { headers: { 'Content-Type': 'application/json' } });
 
             // Add new section to the list
             setSections(prevSections => [...prevSections, response.data.section]);
-            
+
             // Reset form
             setNewSection({ course: "", semester: "", section_number: "" });
         } catch (error) {
@@ -87,7 +96,9 @@ export default function SectionsPage() {
                     </div>
                 )}
 
+
                 {/* Section Creation Form */}
+                {user && user.role === 'faculty' && (
                 <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-6">
                     <h2 className="text-2xl mb-4">Create New Section</h2>
                     <form onSubmit={handleCreateSection} className="space-y-4">
@@ -96,7 +107,7 @@ export default function SectionsPage() {
                             <select
                                 value={newSection.course}
                                 onChange={(e) => {
-                                    setNewSection({...newSection, course: e.target.value});
+                                    setNewSection({ ...newSection, course: e.target.value });
                                     setError(null); // Clear any previous errors
                                 }}
                                 className="w-full p-2 border rounded"
@@ -113,7 +124,7 @@ export default function SectionsPage() {
                             <select
                                 value={newSection.semester}
                                 onChange={(e) => {
-                                    setNewSection({...newSection, semester: e.target.value});
+                                    setNewSection({ ...newSection, semester: e.target.value });
                                     setError(null); // Clear any previous errors
                                 }}
                                 className="w-full p-2 border rounded"
@@ -131,7 +142,7 @@ export default function SectionsPage() {
                                 type="number"
                                 value={newSection.section_number}
                                 onChange={(e) => {
-                                    setNewSection({...newSection, section_number: e.target.value});
+                                    setNewSection({ ...newSection, section_number: e.target.value });
                                     setError(null); // Clear any previous errors
                                 }}
                                 className="w-full p-2 border rounded"
@@ -143,6 +154,7 @@ export default function SectionsPage() {
                         </button>
                     </form>
                 </div>
+                )}
 
                 {/* Display Sections */}
                 <h2 className="text-2xl mb-4">Existing Sections</h2>
@@ -153,9 +165,12 @@ export default function SectionsPage() {
                             <button onClick={() => viewSectionDetails(section._id)} className="ml-4 text-blue-500">
                                 View Details
                             </button>
-                            <button onClick={() => handleDeleteSection(section._id)} className="ml-4 text-red-500">
-                                Delete
-                            </button>
+                            {user && user.role === 'faculty' && (
+                                <button onClick={() => handleDeleteSection(section._id)} className="ml-4 text-red-500">
+                                    Delete
+                                </button>
+                            )}
+
                         </li>
                     ))}
                 </ul>
