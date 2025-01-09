@@ -104,6 +104,13 @@ function FacultyDashboard({user}) {
                 href="/groups" // Link to the Manage Groups component
                 icon="🗂️"
             />
+            <DashboardCard 
+                title="Resource Management" 
+                description="View and manage course materials"
+                href="/resources"
+                icon="📝"
+        
+            />
         </div>
     );
 }
@@ -158,6 +165,13 @@ function StudentDashboard({ user }) {
                 description="View and manage your groups"
                 href={`/groups/${user._id}`} // Link to the Group Details component
                 icon="📋🔍"
+            />
+            <DashboardCard 
+                title="Resource Management" 
+                description="View and manage course materials"
+                href="/resources"
+                icon="📝"
+        
             />
         </div>    );
 }
