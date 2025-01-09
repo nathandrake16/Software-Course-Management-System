@@ -22,7 +22,7 @@ function ResetPassword() {
         }
         try {
             setError("");
-            const response = await axios.post("/api/users/reset-password", {
+            const response = await axios.post("/api/users/reset-password-confirm", {
                 token,
                 password,
             });
