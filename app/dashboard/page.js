@@ -99,12 +99,7 @@ function StudentDashboard({ user }) {
                 href="/sections"
                 icon="📚"
             />
-            <DashboardCard 
-                title="Course Management" 
-                description="Add and manage course materials"
-                href="/courses"
-                icon="📝"
-            />
+
             <DashboardCard 
                 title="Profile" 
                 description="Manage your profile settings"

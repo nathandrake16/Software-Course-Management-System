@@ -5,163 +5,142 @@ import NavBar from "@/components/NavBar";
 import { useRouter } from "next/navigation";
 
 export default function ResourcesPage() {
-    const [resources, setResources] = useState([]);
-    const [newResource, setNewResource] = useState({
-        course: "",
-        semester: "",
-        resources: "", // Add resources to state
-    });
-    const [error, setError] = useState(null);
-    const router = useRouter();
+  const [sections, setSections] = useState([]);
+  const [selectedSection, setSelectedSection] = useState(null);
+  const [resources, setResources] = useState([]);
+  const [newResource, setNewResource] = useState({
+    title: "",
+    file: null,
+  });
+  const [error, setError] = useState(null);
+  const router = useRouter();
 
-    // Fetch resources on component mount
-    useEffect(() => {
-        const fetchResources = async () => {
-            try {
-                const response = await axios.get("/api/resources");
-                setResources(response.data.resources || []);
-            } catch (error) {
-                console.error("Error fetching resources:", error);
-                setError("Failed to fetch resources");
-            }
-        };
-
-        fetchResources();
-    }, []);
-
-    // Handle resource creation
-    const handleCreateResource = async (e) => {
-        e.preventDefault();
-        
-        // Validate inputs
-        if (!newResource.course || !newResource.semester || !newResource.resources) {
-            setError("Please fill in all fields: course, semester, and resource");
-            return;
-        }
-
-        try {
-            // Clear any previous errors
-            setError(null);
-
-            const response = await axios.post("/api/resources", newResource, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            // Add new resource to the list
-            setResources(prevResources => [...prevResources, response.data.resource]);
-            
-            // Reset form
-            setNewResource({ course: "", semester: "", resources: "" });
-        } catch (error) {
-            console.error("Error creating resource:", error);
-            setError(error.response?.data?.error || "Failed to create resource");
-        }
+  useEffect(() => {
+    const fetchSections = async () => {
+      try {
+        const response = await axios.get("/api/sections");
+        setSections(response.data.sections || []);
+      } catch (error) {
+        console.error("Error fetching sections:", error);
+        setError("Unable to load sections. Please try again later.");
+      }
     };
 
-    // Navigate to resource details
-    const viewResourceDetails = (resourceId) => {
-        router.push(`/resources/${resourceId}`);
-    };
+    fetchSections();
+  }, []);
 
-    // Handle resource deletion
-    const handleDeleteResource = async (resourceId) => {
-        try {
-            const response = await axios.delete(`/api/resources/${resourceId}`);
-            // Remove the deleted resource from the state
-            setResources(prevResources => prevResources.filter(resource => resource._id !== resourceId));
-            alert(response.data.message); // Show success message
-        } catch (error) {
-            console.error("Error deleting resource:", error);
-            alert("Failed to delete resource");
-        }
-    };
+  const handleSelectSection = async (sectionId) => {
+    try {
+      const response = await axios.get(`/api/sections/${sectionId}`);
+      setSelectedSection(response.data.section);
+      setResources(response.data.resources || []);
+    } catch (error) {
+      console.error("Error fetching section details:", error);
+      setError("Failed to fetch section details");
+    }
+  };
 
-    return (
-        <div>
-            <NavBar />
-            <div className="container mx-auto p-6">
-                <h1 className="text-3xl font-bold mb-6">Manage Resources</h1>
+  const handleUploadResource = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append("title", newResource.title);
+      formData.append("file", newResource.file);
 
-                {/* Error Message */}
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                        {error}
-                    </div>
-                )}
+      const response = await axios.post(
+        `/api/resources/${selectedSection._id}`,
+        formData
+      );
+      setResources((prevResources) => [...prevResources, response.data.resource]);
+      setNewResource({ title: "", file: null });
+    } catch (error) {
+      console.error("Error uploading resource:", error);
+      setError("Failed to upload resource");
+    }
+  };
 
-                {/* Resource Creation Form */}
-                <div className="bg-white text-black shadow-md rounded px-8 pt-6 pb-8 mb-6">
-                    <h2 className="text-2xl mb-4">Create New Resource</h2>
-                    <form onSubmit={handleCreateResource} className="space-y-4">
-                        <div>
-                            <label className="block mb-2">Course</label>
-                            <select
-                                value={newResource.course}
-                                onChange={(e) => {
-                                    setNewResource({...newResource, course: e.target.value});
-                                    setError(null); // Clear any previous errors
-                                }}
-                                className="w-full p-2 border rounded"
-                                required
-                            >
-                                <option value="">Select Course</option>
-                                <option value="CSE370">CSE370</option>
-                                <option value="CSE470">CSE470</option>
-                                <option value="CSE471">CSE471</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block mb-2">Semester</label>
-                            <select
-                                value={newResource.semester}
-                                onChange={(e) => {
-                                    setNewResource({...newResource, semester: e.target.value});
-                                    setError(null); // Clear any previous errors
-                                }}
-                                className="w-full p-2 border rounded"
-                                required
-                            >
-                                <option value="">Select Semester</option>
-                                <option value="FALL24">FALL24</option>
-                                <option value=" SPRING25">SPRING25</option>
-                                <option value="SUMMER25">SUMMER25</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block mb-2">Resource</label>
-                            <input
-                                type="string"
-                                value={newResource.resources}
-                                onChange={(e) => {
-                                    setNewResource({...newResource, resources: e.target.value});
-                                    setError(null); // Clear any previous errors
-                                }}
-                                className="w-full p-2 border rounded"
-                                required
-                            />
-                        </div>
-                        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-                            Create Resources
-                        </button>
-                    </form>
-                </div>
+  return (
+    <div>
+      <NavBar />
+      <div className="container mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">Resource Management</h1>
 
-                {/* Display Resources */}
-                <h2 className="text-2xl mb-4">Existing Resources</h2>
-                <ul className="list-disc pl-5">
-                    {resources.map(resource => (
-                        <li key={resource._id} className="mb-2">
-                            {resource.course} - {resource.semester} (Resource {resource.resources})
-                            
-                            <button onClick={() => handleDeleteResource(resource._id)} className="ml-4 text-red-500">
-                                Delete
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            {error}
+          </div>
+        )}
+
+        {/* Section Selection */}
+        <div className="mb-4">
+          <label className="block mb-2">Select Section</label>
+          <select
+            value={selectedSection?._id}
+            onChange={(e) => handleSelectSection(e.target.value)}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Select a section</option>
+            {sections.map((section) => (
+              <option key={section._id} value={section._id}>
+                {section.course} - {section.semester} (Section {section.section_number})
+              </option>
+            ))}
+          </select>
         </div>
-    );
+
+        {/* Resource Upload Form */}
+        {selectedSection && (
+          <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-6">
+            <h2 className="text-2xl mb-4">Upload Resource</h2>
+            <form onSubmit={handleUploadResource} className="space-y-4">
+              <div>
+                <label className="block mb-2">Title</label>
+                <input
+                  type="text"
+                  value={newResource.title}
+                  onChange={(e) =>
+                    setNewResource({ ...newResource, title: e.target.value })
+                  }
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block mb-2">File</label>
+                <input
+                  type="file"
+                  onChange={(e) =>
+                    setNewResource({ ...newResource, file: e.target.files[0] })
+                  }
+                  className="w-full p-2 border rounded"
+                  required
+                />
+              </div>
+              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+                Upload Resource
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Resources List */}
+        {resources.length > 0 && (
+          <div>
+            <h2 className="text-2xl mb-4">Resources</h2>
+            <ul>
+              {resources.map((resource) => (
+                <li key={resource._id} className="mb-2">
+                  {resource.title} ({resource.file .name})
+                  <a href={resource.fileUrl} className="text-blue-500 ml-2" target="_blank" rel="noopener noreferrer">
+                    View
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
