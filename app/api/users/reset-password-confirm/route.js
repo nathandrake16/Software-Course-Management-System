@@ -8,6 +8,7 @@ connectDB();
 
 export async function POST(request, res) {
     try {
+        console.log("Reset password confirm route hit");
         const body = await request.json();
         const { token, password } = body
         console.log(token,password)

@@ -73,7 +73,7 @@ export async function POST(request, context) {
         );
         const resource = new Resource({
             title,
-            resource: `http://localhost:3000/uploads/${filename}`,
+            resource: `https://scms.asiradnan.com/uploads/${filename}`,
             user: userId,
             section: sectionId
         });
