@@ -10,6 +10,7 @@ export default function SignUp() {
         name: "",
         university_email: "",
         password: "",
+        id: "",
     });
     const [error, setError] = useState("");
 
@@ -55,6 +56,15 @@ export default function SignUp() {
                                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                     value={user.university_email}
                                     onChange={(e) => setUser({ ...user, university_email: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <input
+                                    type="number"
+                                    placeholder="BRACU ID"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                    value={user.id}
+                                    onChange={(e) => setUser({ ...user, id: e.target.value })}
                                 />
                             </div>
                             <div>
