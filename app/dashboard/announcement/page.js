@@ -11,6 +11,7 @@ export default function Announcement() {
     const [success, setSuccess] = useState("");
     const [sendEmail, setSendEmail] = useState(false);
     const [deadline, setDeadline] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const fetchSections = async () => {
@@ -28,37 +29,42 @@ export default function Announcement() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         setError("");
         setSuccess("");
 
+        // Form validation
         if (!content.trim()) {
             setError("Announcement content cannot be empty.");
+            setIsLoading(false);
             return;
         }
 
         if (selectedSections.length === 0) {
             setError("Please select at least one section.");
+            setIsLoading(false);
             return;
         }
 
         try {
-        
-                const announcementResponse = await axios.post("/api/announcements", {
-                    content,
-                    sections: selectedSections,
-                    deadline: deadline || null,
-                    sendMail : sendEmail
-                });
-                if (announcementResponse.status === 200) {
-                    setSuccess("Announcement created successfully!" + (sendEmail ? " Email notifications sent." : ""));
-                    setContent("");
-                    setSelectedSections([]);
-                    setSendEmail(false);
-                }
-    
+            const announcementResponse = await axios.post("/api/announcements", {
+                content,
+                sections: selectedSections,
+                deadline: deadline || null,
+                sendMail: sendEmail
+            });
+
+            if (announcementResponse.status === 200) {
+                setSuccess("Announcement created successfully!" + (sendEmail ? " Email notifications sent." : ""));
+                setContent("");
+                setSelectedSections([]);
+                setSendEmail(false);
+                setDeadline("");
+            }
         } catch (error) {
-            console.error("Error creating announcement:", error);
-            setError("An error occurred while creating the announcement.");
+            setError(error.response?.data?.message || "An error occurred while creating the announcement.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -138,7 +144,7 @@ export default function Announcement() {
                             ))}
                         </div>
                     </div>
-                    
+
                     <div>
                         <label htmlFor="deadline" className="block text-lg font-medium text-gray-700">
                             Deadline (Optional)
@@ -166,9 +172,10 @@ export default function Announcement() {
                     <div className="flex justify-center">
                         <button
                             type="submit"
+                            disabled={isLoading}
                             className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-400"
                         >
-                            Submit Announcement
+                            {isLoading ? "Submitting..." : "Submit Announcement"}
                         </button>
                     </div>
                 </form>

@@ -16,7 +16,7 @@ export default function Dashboard() {
                 if (response.data.user) {
                     setUser (response.data.user);
                 } else {
-                    setError("User  information not found");
+                    setError("User information not found");
                 }
             } catch (error) {
                 setError("Failed to fetch user information");
@@ -40,8 +40,8 @@ export default function Dashboard() {
         <>
             <NavBar />
             <div className="container mx-auto p-6">
-                <h1 className="text-3xl font-bold mb-6">
-                    Welcome {user.role}, {user.name}! 
+                <h1 className="text-4xl font-extrabold mb-6 text-gray-800">
+                    Welcome {user.role}, {user.name}!
                 </h1>
 
                 {user.role === "faculty" && <FacultyDashboard user={user} />}
@@ -68,30 +68,6 @@ function FacultyDashboard({user}) {
                 href="/sections"
                 icon="📚"
             />
-            {/* <DashboardCard 
-                title="Course Management" 
-                description="Add and manage course materials"
-                href="/courses"
-                icon="📝"
-            /> */}
-            {/* <DashboardCard 
-                title="Student Enrollment" 
-                description="View and manage student enrollments"
-                href="/enrollments"
-                icon="👥"
-            /> */}
-            {/* <DashboardCard 
-                title="Assignments" 
-                description="Create and manage assignments"
-                href="/assignments"
-                icon="📋"
-            /> */}
-            {/* <DashboardCard 
-                title="Grading" 
-                description="Grade student submissions"
-                href="/grading"
-                icon="📊"
-            /> */}
             <DashboardCard 
                 title="Profile" 
                 description="Manage your profile settings"
@@ -101,7 +77,7 @@ function FacultyDashboard({user}) {
             <DashboardCard 
                 title="Manage Groups" 
                 description="Create and manage student groups"
-                href="/groups" // Link to the Manage Groups component
+                href="/groups"
                 icon="🗂️"
             />
             <DashboardCard 
@@ -109,7 +85,6 @@ function FacultyDashboard({user}) {
                 description="View and manage course materials"
                 href="/resources"
                 icon="📝"
-        
             />
         </div>
     );
@@ -121,10 +96,9 @@ function StudentDashboard({ user }) {
             <DashboardCard 
                 title="Sections" 
                 description="Your Assigned Section"
-                href= 	"/sections"
+                href="/sections"
                 icon="📚"
             />
-
             <DashboardCard 
                 title="Course Management" 
                 description="Add and manage course materials"
@@ -140,7 +114,7 @@ function StudentDashboard({ user }) {
             <DashboardCard 
                 title="Group Details" 
                 description="View and manage your groups"
-                href={`/groups/${user._id}`} // Link to the Group Details component
+                href={`/groups/${user._id}`}
                 icon="📋🔍"
             />
             <DashboardCard 
@@ -148,17 +122,17 @@ function StudentDashboard({ user }) {
                 description="View and manage course materials"
                 href="/resources"
                 icon="📝"
-        
             />
-        </div>    );
+        </div>
+    );
 }
 
 function DashboardCard({ title, description, href, icon }) {
     return (
         <Link href={href} className="block">
-            <div className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+            <div className="border rounded-lg p-6 hover:shadow-lg transition-shadow bg-white">
                 <div className="text-4xl mb-4">{icon}</div>
-                <h2 className="text-xl font-semibold mb-2">{title}</h2>
+                <h2 className="text-2xl font-semibold mb-2 text-gray-800">{title}</h2>
                 <p className="text-gray-600">{description}</p>
             </div>
         </Link>
