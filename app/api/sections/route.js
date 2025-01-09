@@ -50,7 +50,7 @@ export async function POST(request) {
         }
 
         // Parse request body
-        const reqBody = await request.json();
+        const reqBody = await request.json(); // data nitese
         
         // Validate input
         if (!reqBody.course || !reqBody.semester || reqBody.section_number == null) {
@@ -58,7 +58,7 @@ export async function POST(request) {
         }
 
         // Check if section_number is already in use
-        const existingSection = await Section.findOne({ section_number: reqBody.section_number });
+        const existingSection = await Section.findOne({ section_number: reqBody.section_number, course: reqBody.course, semester: reqBody.semester });  
         if (existingSection) {
             return NextResponse.json({ error: "Section number already exists" }, { status: 400 });
         }

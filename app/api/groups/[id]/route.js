@@ -63,7 +63,8 @@ export async function PUT(request, { params }) {
             const updatedGroup = await Group.findByIdAndUpdate(
                 id,
                 {
-                    'progress.details': reqBody.progress.details
+                    'progress.details': reqBody.progress.details,
+                    'progress.string': reqBody.progress.string,
                 }
             );
             if (!updatedGroup) {
