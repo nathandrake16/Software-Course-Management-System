@@ -43,11 +43,7 @@ export default function SectionsPage() {
             // Clear any previous errors
             setError(null);
 
-            const response = await axios.post("/api/sections", newSection, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+            const response = await axios.post("/api/sections", newSection, {headers: {'Content-Type': 'application/json'}});
 
             // Add new section to the list
             setSections(prevSections => [...prevSections, response.data.section]);
