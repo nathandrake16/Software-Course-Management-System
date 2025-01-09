@@ -68,30 +68,30 @@ function FacultyDashboard({user}) {
                 href="/sections"
                 icon="📚"
             />
-            <DashboardCard 
+            {/* <DashboardCard 
                 title="Course Management" 
                 description="Add and manage course materials"
                 href="/courses"
                 icon="📝"
-            />
-            <DashboardCard 
+            /> */}
+            {/* <DashboardCard 
                 title="Student Enrollment" 
                 description="View and manage student enrollments"
                 href="/enrollments"
                 icon="👥"
-            />
-            <DashboardCard 
+            /> */}
+            {/* <DashboardCard 
                 title="Assignments" 
                 description="Create and manage assignments"
                 href="/assignments"
                 icon="📋"
-            />
-            <DashboardCard 
+            /> */}
+            {/* <DashboardCard 
                 title="Grading" 
                 description="Grade student submissions"
                 href="/grading"
                 icon="📊"
-            />
+            /> */}
             <DashboardCard 
                 title="Profile" 
                 description="Manage your profile settings"
@@ -119,40 +119,17 @@ function StudentDashboard({ user }) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <DashboardCard 
-                title="Manage Sections" 
-                description="Create and manage course sections"
-                href="/sections"
+                title="Sections" 
+                description="Your Assigned Section"
+                href= 	"/sections"
                 icon="📚"
             />
-            <DashboardCard 
-                title="Create New Section" 
-                description="Add a new section for courses"
-                href="/sections" // Link to the CreateSection component
-                icon="➕"
-            />
+
             <DashboardCard 
                 title="Course Management" 
                 description="Add and manage course materials"
                 href="/courses"
                 icon="📝"
-            />
-            <DashboardCard 
-                title="Student Enrollment" 
-                description="View and manage student enrollments"
-                href="/enrollments"
-                icon="👥"
-            />
-            <DashboardCard 
-                title="Assignments" 
-                description="Create and manage assignments"
-                href="/assignments"
-                icon="📋"
-            />
-            <DashboardCard 
-                title="Grading" 
-                description="Grade student submissions"
-                href="/grading"
-                icon="📊"
             />
             <DashboardCard 
                 title="Profile" 
