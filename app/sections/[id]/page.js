@@ -6,6 +6,7 @@ import NavBar from "@/components/NavBar";
 import { useParams } from "next/navigation";
 
 export default function SectionDetailsPage() {
+    const [user, setUser] = useState(null);
     const [section, setSection] = useState(null);
     const [studentEmail, setStudentEmail] = useState("");
     const [error, setError] = useState(null);
@@ -24,6 +25,15 @@ export default function SectionDetailsPage() {
                 setError(error.response?.data?.error || "Failed to fetch section details");
             }
         };
+        const fetchUserInfo = async () => {
+            try {
+                const response = await axios.get("/api/users/userinfo");
+                setUser(response.data.user);
+            } catch (error) {
+                console.error("Error fetching user info:", error);
+            }
+        };
+        fetchUserInfo();
 
         fetchSectionDetails();
     }, [params.id]);
@@ -78,6 +88,8 @@ export default function SectionDetailsPage() {
                 )}
 
                 {/* Add Student Form */}
+                {user && user.role === "faculty" && (
+                    
                 <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-6">
                     <h2 className="text-2xl mb-4">Add Student</h2>
                     <form onSubmit={handleAddStudent} className="flex space-x-4">
@@ -97,6 +109,7 @@ export default function SectionDetailsPage() {
                         </button>
                     </form>
                 </div>
+                )}
 
                 {/* Students List */}
                 <div>
